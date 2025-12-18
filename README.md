@@ -1,4 +1,5 @@
 # StockyAPI
+### Status: Early Development 
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-yellow.svg)](https://www.python.org/)
