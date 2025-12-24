@@ -237,5 +237,3 @@ Thumbs.db
 #models folder containing large ML models
 models/
 
-#google services file
-google-services.json
