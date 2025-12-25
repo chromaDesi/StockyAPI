@@ -1,52 +1,101 @@
-# StockyAPI
-### Status: Early Development 
+# 📈 StockyAPI
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-yellow.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com/)
 
-## 🚀 Overview
-A high-security microservice architecture that implements **Bring Your Own Key (BYOK)** logic. It decouples storage from sovereignty, ensuring that the database host (me) cannot access the user's sensitive payload (you).
+> ⚠️ **Early Development Notice**  
+> StockyAPI is currently in **early development (alpha)**. APIs, schemas, and features may evolve as the project matures. Feedback and contributions are welcome.
 
-**Key Features:**
-* **Zero-Trust Persistence:** Data is encrypted *before* it hits the disk using a KEK (Key Encryption Key) held by the user.
-* **CQRS Pattern:** Separate Read/Write paths optimized for ingestion speed vs. retrieval security.
-* **Ephemeral State:** Decrypted payloads exist only in memory during the request lifecycle.
+**StockyAPI** is a lightweight, educational-first market data API designed for **students and early-career developers** who want to build finance, data science, and machine learning projects *without fighting messy data*.
 
-## 🛠️ Tech Stack
-* **Framework:** FastAPI (Python)
-* **Database:** Google Firestore (NoSQL)
-* **Orchestration:** GCP Cloud Scheduler
-* **Cryptography:** AES-GCM (Standard Library/Cryptography)
+Instead of exposing raw scraped fields, StockyAPI provides **normalized, enriched, and beginner-friendly stock data** with built-in explanations, reliability metadata, and derived signals.
 
-## 🏗️ Architecture
-*(If you have a diagram, link it here. If not, describe the flow briefly)*
-1.  **Ingestion:** Client sends Payload + KEK -> API Encrypts with DEK -> DEK wrapped with KEK -> Stored in Firestore.
-2.  **Retrieval:** Client requests ID -> API fetches Ciphertext -> Client provides KEK -> API unwraps DEK -> Payload Decrypted -> Returned.
+> Think of it as *“market data that actually makes sense.”*
 
-## 🏃‍♂️ Getting Started
+---
 
-### Prerequisites
-* Python 3.11+
-* Google Cloud Service Account (Firestore)
+## ✨ Why StockyAPI?
 
-### Installation
-1.  Clone the repo
-    ```bash
-    git clone [https://github.com/yourusername/vault-core.git](https://github.com/yourusername/vault-core.git)
-    ```
-2.  Install dependencies
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  Set up Environment
-    ```bash
-    cp .env.example .env
-    # Add your FIREBASE_CREDENTIALS path in .env
-    ```
+Most free finance APIs and scrapers:
+- return inconsistent schemas
+- expose unexplained financial jargon
+- silently fail when sources change
+- force students to clean data before learning anything
 
-## 🔒 Security Note
-This repository contains the *architectural implementation*. No actual keys or production data are stored here.
+**StockyAPI solves this by:**
+- normalizing data across multiple public sources
+- adding confidence and freshness indicators
+- exposing derived signals (momentum, valuation)
+- embedding explanations directly in responses
 
-## 📜 License
-This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This makes it ideal for:
+- class projects
+- hackathons
+- ML experiments
+- portfolio dashboards
+- interview demos
+
+---
+
+## 🚀 Features
+
+### ✅ Normalized Quote Schema
+Stable field names across all sources so your code doesn’t break.
+
+### ✅ Multi-Source Aggregation
+Currently aggregates public market data from:
+- Google Finance
+- Finviz
+
+(Sources can be swapped without breaking the API contract.)
+
+### ✅ Reliability Metadata
+Each response includes:
+- last updated timestamp
+- confidence score
+- data sources used
+- fallback indicators
+
+### ✅ Derived Market Signals
+Beginner-friendly computed insights:
+- daily percent change
+- valuation category (cheap / fair / expensive)
+- short-term momentum
+- volatility level
+
+### ✅ Educational Context
+Optional learning notes explaining what each metric means and how it’s used.
+
+---
+
+## 🧠 Example Response
+
+```json
+{
+  "ticker": "AAPL",
+  "price": 189.24,
+  "change_percent": 1.42,
+
+  "valuation": {
+    "pe_ratio": 28.4,
+    "category": "overvalued",
+    "explanation": "P/E is higher than the sector median"
+  },
+
+  "signals": {
+    "momentum_1d": "bullish",
+    "volatility": "moderate"
+  },
+
+  "learning_notes": {
+    "pe_ratio": "Price-to-Earnings compares market price to earnings per share.",
+    "momentum_1d": "Measures short-term price trend direction."
+  },
+
+  "reliability": {
+    "confidence": 0.91,
+    "sources": ["google_finance", "finviz"],
+    "last_updated": "2025-12-25T03:14:00Z"
+  }
+}
