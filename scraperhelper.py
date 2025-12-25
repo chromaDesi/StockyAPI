@@ -59,15 +59,17 @@ def scrape_finviz_data(ticker_symbol, pd: str = "d") -> BeautifulSoup:
     return BeautifulSoup(response.text, 'html.parser')
 
 
-def scrape_google_stock_data(ticker_symbol, exchange_code) -> BeautifulSoup:
-    url = f"https://www.google.com/finance/quote/{ticker_symbol}:{exchange_code}"
+def scrape_google_stock_data(ticker_symbol, exchange_code, period: str = "1D") -> BeautifulSoup:
+    url = f"https://www.google.com/finance/quote/{ticker_symbol}:{exchange_code}?window={period}"
     response = requests.get(url, headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
     if response.status_code != 200:
         raise Exception(f"Failed to retrieve data for {ticker_symbol}:{exchange_code}")
     return BeautifulSoup(response.text, 'html.parser')
 
-def getGoogleQuote(ticker_symbol: str, exchange_code: str) -> dict:
-        soup = scrape_google_stock_data(ticker_symbol, exchange_code)
+def getGoogleQuote(ticker_symbol: str, exchange_code: str, period: str = "1D") -> dict:
+        if period not in ["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y", "MAX"]:
+            raise ValueError("Invalid period. Use one of: 1D, 5D, 1M, 6M, YTD, 1Y, 5Y, or MAX when using Google Services")
+        soup = scrape_google_stock_data(ticker_symbol, exchange_code, period)
         currprice = soup.find_all('div', class_='fxKbKc')
         pe = soup.find_all('div', class_='P6K39c')
         if not currprice or len(pe) < 7:
