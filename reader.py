@@ -14,7 +14,7 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 '''
-app = FastAPI()
+app = FastAPI(title="StockyAPI Reader Service", version="1.0.0", description="API Service for scraping stock data from Google Finance and Finviz. Alpha Testing Phase.")
 
 
 @app.get("/")
