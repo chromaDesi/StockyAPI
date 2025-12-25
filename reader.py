@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
-from scraperhelper import getFinvizQuote, getGoogleQuote, currency_rates, scrape_finviz_detailed
+from scraperhelper import getFinvizQuote, getGoogleQuote, currency_rates, scrape_finviz_detailed, greed_index
 '''import firebase_admin
 from firebase_admin import firestore, credentials
 
@@ -60,4 +60,12 @@ def health_check():
 async def get_currency_rates():
     return currency_rates()
 
+@app.get("/sentiment/greedindex")
+async def get_greed_index():
+    try:
+        return await run_in_threadpool(greed_index)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 

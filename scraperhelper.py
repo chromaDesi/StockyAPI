@@ -1,6 +1,7 @@
 from typing import Any
 from bs4 import BeautifulSoup
-import requests, random
+import requests, random, time
+import yfinance as yf
 
 language_codes = ["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko", "hi"]
 headers = [
@@ -47,13 +48,6 @@ def scrape_finviz_detailed(ticker_symbol, pd: str = "d") -> Any:
     return response.json()
 
 
-def scrape_google_stock_data(ticker_symbol, exchange_code) -> BeautifulSoup:
-    url = f"https://www.google.com/finance/quote/{ticker_symbol}:{exchange_code}"
-    response = requests.get(url, headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
-    if response.status_code != 200:
-        raise Exception(f"Failed to retrieve data for {ticker_symbol}:{exchange_code}")
-    return BeautifulSoup(response.text, 'html.parser')
-
 #<td class="snapshot-td2 w-[8%] " align="left" style=""><b>24.56</b></td>
 def scrape_finviz_data(ticker_symbol, pd: str = "d") -> BeautifulSoup:
     if pd.lower() not in ["d", "w", "m"]:
@@ -62,6 +56,14 @@ def scrape_finviz_data(ticker_symbol, pd: str = "d") -> BeautifulSoup:
     response = requests.get(url, headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
     if response.status_code != 200:
         raise Exception(f"Failed to retrieve data for {ticker_symbol} from Finviz")
+    return BeautifulSoup(response.text, 'html.parser')
+
+
+def scrape_google_stock_data(ticker_symbol, exchange_code) -> BeautifulSoup:
+    url = f"https://www.google.com/finance/quote/{ticker_symbol}:{exchange_code}"
+    response = requests.get(url, headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
+    if response.status_code != 200:
+        raise Exception(f"Failed to retrieve data for {ticker_symbol}:{exchange_code}")
     return BeautifulSoup(response.text, 'html.parser')
 
 def getGoogleQuote(ticker_symbol: str, exchange_code: str) -> dict:
@@ -96,6 +98,22 @@ def getFinvizQuote(ticker_symbol: str, pd: str) -> dict:
             continue
         info[x.text] = y.text.strip()
     return info
+
+def greed_index():
+    response = requests.get("https://feargreedmeter.com/", headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
+    if response.status_code != 200:
+        raise Exception(f"Failed to retrieve data for Greed Index")
+    soup = BeautifulSoup(response.text, 'html.parser')
+    num = soup.find_all('div', class_="text-center text-4xl font-semibold mb-1 text-white")
+    words = {(0, 24) : "Extreme Fear", (25, 44) : "Fear",(45, 55) : "Neutral", (56, 75)  : "Greed", (76, 100) : "Extreme Greed"}
+    marked_time = int(time.time())
+    greed_value = int(num[0].text) if num else None
+    if greed_value is None:
+        raise ValueError("Unexpected page structure from Fear and Greed Meter")
+    for (low, high), descriptor in words.items():
+        if low <= greed_value <= high:
+            return {"greed_index": greed_value, "status": descriptor, "timestamp": marked_time}
+
 
 # Recursive function to handle nested comments
 def parse_comments(comment_list, depth=0):
@@ -162,4 +180,12 @@ def get_full_thread(url):
 url = "https://www.reddit.com/r/gmu/comments/1pr49fl/found_out_i_passed/"
 get_full_thread(url)'''
 
+'''
+print(getGoogleQuote("V", "NYSE"))
+print("--------------New------------------")
+print(getFinvizQuote("V", "d"))
 
+print(getGoogleQuote("AAPL", "NASDAQ"))
+print(yf.Ticker("AAPL").history(period="5d"))
+print(yf.Ticker("AAPL").get_news(count = 1))'''
+print(greed_index())
