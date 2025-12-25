@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
-from scraperhelper import scrape_stock_data, jsonWrapper
+from scraperhelper import getFinvizQuote, getGoogleQuote, currency_rates
 '''import firebase_admin
 from firebase_admin import firestore, credentials
 
@@ -22,19 +22,38 @@ def root():
     return {"message": "Welcome to the StockyAPI Reader Service"}
 
 
-@app.get("/quotes/{ticker_symbol}/{exchangecode}")
+@app.get("/quotes/google/{ticker_symbol}&{exchangecode}")
 async def get_qoute(ticker_symbol: str, exchangecode: str):
     try:
-        soup = await run_in_threadpool(
-            scrape_stock_data,
+        return await run_in_threadpool(
+            getGoogleQuote,
             ticker_symbol,
             exchangecode)
-        currprice = soup.find_all('div', class_='fxKbKc')
-        pe = soup.find_all('div', class_='P6K39c')
-        return jsonWrapper(currprice, pe)
+        
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@app.get("/qoutes/finviz/{ticker_symbol}&{pd}")
+async def get_finviz_qoute(ticker_symbol: str, pd: str):
+    try:
+        return await run_in_threadpool(
+            getFinvizQuote,
+            ticker_symbol,
+            pd)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/health")
+def health_check():
+    return {"status": "OK"}
+
+@app.get("/finviz/currency/rates")
+async def get_currency_rates():
+    return currency_rates()
 
 
