@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
-from scraperhelper import getFinvizQuote, getGoogleQuote, currency_rates
+from scraperhelper import getFinvizQuote, getGoogleQuote, currency_rates, scrape_finviz_detailed
 '''import firebase_admin
 from firebase_admin import firestore, credentials
 
@@ -36,6 +36,10 @@ async def get_qoute(ticker_symbol: str, exchangecode: str):
         raise HTTPException(status_code=500, detail=str(e))
     
     
+@app.get("/qoutes/finviz/detailed/{ticker_symbol}&{pd}")
+async def get_finviz_detailed_qoute(ticker_symbol: str, pd: str):
+    return scrape_finviz_detailed(ticker_symbol, pd)
+
 @app.get("/qoutes/finviz/{ticker_symbol}&{pd}")
 async def get_finviz_qoute(ticker_symbol: str, pd: str):
     try:

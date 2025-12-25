@@ -1,3 +1,4 @@
+from typing import Any
 from bs4 import BeautifulSoup
 import requests, random
 
@@ -29,8 +30,17 @@ user_agents = [
 #exchangecode = input("Enter exchange code (e.g., NASDAQ, NYSE): ")
 #ticker = input("Enter stock ticker symbol (e.g., AAPL, V): ")
 
-def currency_rates():
+def currency_rates() -> Any:
     url = f"https://dd.insiad.com/currency-rates"
+    response = requests.get(url, headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
+    if response.status_code != 200:
+        raise Exception(f"Failed to retrieve data for currency rates via Finviz")
+    return response.json()
+
+def scrape_finviz_detailed(ticker_symbol, pd: str = "d") -> Any:
+    if pd.lower() not in ["d", "w", "m"]:
+        raise ValueError("Invalid period. Use 'D' for daily, 'W' for weekly, or 'M' for monthly.")
+    url = f"https://finviz.com/api/quote.ashx?aftermarket=0&dateFrom=1733029200&dateTo=1767243599&events=false&financialAttachments=&instrument=stock&patterns=false&premarket=0&rev=1766653078813&ticker={ticker_symbol}&timeframe={pd.lower()}"
     response = requests.get(url, headers={"Accept-Language": random.choice(headers), "User-Agent": random.choice(user_agents)}, timeout=10)
     if response.status_code != 200:
         raise Exception(f"Failed to retrieve data for currency rates via Finviz")
